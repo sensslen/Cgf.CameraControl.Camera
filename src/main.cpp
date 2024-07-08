@@ -1,8 +1,9 @@
 #include <Arduino.h>
-#include <LibLanc.h>
 #include <ESPAsyncWebServer.h>
+#include <LibLanc.h>
 
 #include "PanTilt/PanTilt.h"
+#include "WebsocketReceiver/WebsocketReceiver.h"
 
 #define PAN_RIGHT_PIN 14
 #define PAN_LEFT_PIN 12
@@ -16,6 +17,8 @@ Cgf::CameraControl::Camera::PanTilt panTilt(PAN_RIGHT_PIN, PAN_LEFT_PIN, TILT_UP
 
 LibLanc::LancNonBlocking lanc(LANC_INPUT_PIN, LANC_OUTPUT_PIN);
 
+Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", 80);
+
 void setup()
 {
     Serial.begin(115200);
@@ -25,9 +28,21 @@ void setup()
     }
 
     lanc.begin();
+    websocketReceiver.begin();
 }
 
 void loop()
 {
-    // put your main code here, to run repeatedly:
+    auto nextStateOption = websocketReceiver.getNextState();
+    if (nextStateOption.has_value())
+    {
+        auto nextState = nextStateOption.value();
+        panTilt.setPanSpeed(nextState.getPanSpeed(), nextState.getPanRight());
+        panTilt.setTiltSpeed(nextState.getTiltSpeed(), nextState.getTiltUp());
+
+        auto zoomSpeed = nextState.getZoomSpeed() * 8 / 255;
+        lanc.setCommand(LibLanc::CommandFactory::zoom(zoomSpeed));
+    }
+
+    lanc.loop();
 }
