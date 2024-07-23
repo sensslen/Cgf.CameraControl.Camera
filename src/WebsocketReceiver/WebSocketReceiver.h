@@ -21,6 +21,7 @@ class WebSocketReceiver
     WebSocketReceiver(String websocketPath, uint16_t websocketPort);
 
     void begin();
+    void loop();
 
     std::optional<const State> getNextState();
 

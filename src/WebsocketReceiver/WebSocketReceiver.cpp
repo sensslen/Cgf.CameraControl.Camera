@@ -37,6 +37,11 @@ void WebSocketReceiver::begin()
     _server.begin();
 }
 
+void WebSocketReceiver::loop()
+{
+    _socket.cleanupClients();
+}
+
 void WebSocketReceiver::onWsEvent(
     AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
