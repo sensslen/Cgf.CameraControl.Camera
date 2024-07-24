@@ -37,19 +37,19 @@ State::State(String &json) : State()
     if (document.containsKey("zoom"))
     {
         int zoom = document["zoom"];
-        _zoomSpeed = std::max(std::min(zoom, 255), -255);
+        _zoomSpeed = std::clamp(zoom, -255, 255);
     }
 
     if (document.containsKey("red"))
     {
         int red = document["red"];
-        _redColor = std::max(std::min(red, 255), 0);
+        _redColor = std::clamp(red, 0, 255);
     }
 
     if (document.containsKey("green"))
     {
         int green = document["green"];
-        _greenColor = std::max(std::min(green, 255), 0);
+        _greenColor = std::clamp(green, 0, 255);
     }
 }
 
@@ -58,7 +58,7 @@ State::State(uint8_t panSpeed, bool panRight, uint8_t tiltSpeed, bool tiltUp, in
     , _panRight(panRight)
     , _tiltSpeed(tiltSpeed)
     , _tiltUp(tiltUp)
-    , _zoomSpeed(zoomSpeed)
+    , _zoomSpeed(std::clamp(zoomSpeed, -255, 255))
     , _redColor(red)
     , _greenColor(green)
 {

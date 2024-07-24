@@ -33,33 +33,16 @@ void EthernetConnection::onWiFiEvent(WiFiEvent_t event)
     switch (event)
     {
         case ARDUINO_EVENT_ETH_START:
-            Serial.println("ETH Started");
             // set eth hostname here
             ETH.setHostname("esp32-ethernet");
             break;
-        case ARDUINO_EVENT_ETH_CONNECTED:
-            Serial.println("ETH Connected");
-            break;
         case ARDUINO_EVENT_ETH_GOT_IP:
-            Serial.print("ETH MAC: ");
-            Serial.print(ETH.macAddress());
-            Serial.print(", IPv4: ");
-            Serial.print(ETH.localIP());
-            if (ETH.fullDuplex())
-            {
-                Serial.print(", FULL_DUPLEX");
-            }
-            Serial.print(", ");
-            Serial.print(ETH.linkSpeed());
-            Serial.println("Mbps");
+            Serial.print("IP: ");
+            Serial.println(ETH.localIP());
             onConnectionStateChanged(ConnectionState::CONNECTED);
             break;
         case ARDUINO_EVENT_ETH_DISCONNECTED:
-            Serial.println("ETH Disconnected");
             onConnectionStateChanged(ConnectionState::DISCONNECTED);
-            break;
-        case ARDUINO_EVENT_ETH_STOP:
-            Serial.println("ETH Stopped");
             break;
         default:
             break;

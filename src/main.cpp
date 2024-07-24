@@ -53,10 +53,9 @@ Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", 80, ether
 
 void setup()
 {
-    Serial.begin(115200);
-    Serial.setDebugOutput(true);
-
     ethernetConnection.begin();
+    Serial.begin(115200);
+
     if (!panTilt.setup())
     {
         Serial.println("Failed to setup PanTilt");
