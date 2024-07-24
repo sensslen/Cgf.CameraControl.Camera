@@ -24,6 +24,8 @@ class PanTilt
     uint8_t _pinPanLeft;
     uint8_t _pinTiltUp;
     uint8_t _pinTiltDown;
+
+    static uint32_t calculateSpeed(uint8_t speed);
 };
 
 }  // namespace Camera

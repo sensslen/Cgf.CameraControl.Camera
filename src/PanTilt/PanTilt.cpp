@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 
-#define PWM_FREQUENCY 500
-#define PWM_RESOLUTION 8
+#define PWM_FREQUENCY 200
+#define PWM_RESOLUTION 10
 
 namespace Cgf
 {
@@ -43,12 +43,12 @@ void PanTilt::setPanSpeed(uint8_t speed, bool right)
     if (right)
     {
         ledcWrite(_pinPanLeft, 0);
-        ledcWrite(_pinPanRight, speed);
+        ledcWrite(_pinPanRight, calculateSpeed(speed));
     }
     else
     {
         ledcWrite(_pinPanRight, 0);
-        ledcWrite(_pinPanLeft, speed);
+        ledcWrite(_pinPanLeft, calculateSpeed(speed));
     }
 }
 
@@ -57,13 +57,23 @@ void PanTilt::setTiltSpeed(uint8_t speed, bool up)
     if (up)
     {
         ledcWrite(_pinTiltDown, 0);
-        ledcWrite(_pinTiltUp, speed);
+        ledcWrite(_pinTiltUp, calculateSpeed(speed));
     }
     else
     {
         ledcWrite(_pinTiltUp, 0);
-        ledcWrite(_pinTiltDown, speed);
+        ledcWrite(_pinTiltDown, calculateSpeed(speed));
     }
+}
+
+uint32_t PanTilt::calculateSpeed(const uint8_t receivedSpeed)
+{
+    if (receivedSpeed == 0)
+    {
+        return 0;
+    }
+
+    return map(receivedSpeed, 0, 255, 300, 1023);
 }
 
 }  // namespace Camera

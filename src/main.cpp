@@ -77,6 +77,7 @@ void loop()
         auto nextState = nextStateOption.value();
         panTilt.setPanSpeed(nextState.getPanSpeed(), nextState.getPanRight());
         panTilt.setTiltSpeed(nextState.getTiltSpeed(), nextState.getTiltUp());
+        ledControl.setColor(nextState.getRed(), nextState.getGreen());
 
         auto zoomSpeed = nextState.getZoomSpeed() * 8 / 255;
         lanc.setCommand(LibLanc::CommandFactory::zoom(zoomSpeed));
