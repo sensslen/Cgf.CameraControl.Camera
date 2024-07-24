@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#define PWM_FREQUENCY 2000
+#define PWM_FREQUENCY 500
 #define PWM_RESOLUTION 8
 
 namespace Cgf

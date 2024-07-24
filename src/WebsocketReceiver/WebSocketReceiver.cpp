@@ -12,29 +12,25 @@ namespace CameraControl
 namespace Camera
 {
 
-WebSocketReceiver::WebSocketReceiver() : WebSocketReceiver("/ws", 80) {}
-WebSocketReceiver::WebSocketReceiver(const char *websocketPath, uint16_t websocketPort)
-    : _server(websocketPort), _socket(websocketPath)
+WebSocketReceiver::WebSocketReceiver(Connection &connection) : WebSocketReceiver("/ws", 80, connection) {}
+WebSocketReceiver::WebSocketReceiver(const char *websocketPath, uint16_t websocketPort, Connection &connection)
+    : WebSocketReceiver(String(websocketPath), websocketPort, connection)
 {
 }
-WebSocketReceiver::WebSocketReceiver(String websocketPath, uint16_t websocketPort)
+WebSocketReceiver::WebSocketReceiver(String websocketPath, uint16_t websocketPort, Connection &connection)
     : _hasStateChanged(false), _server(websocketPort), _socket(websocketPath)
 {
-    _socket.onEvent(std::bind(
-        &WebSocketReceiver::onWsEvent,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2,
-        std::placeholders::_3,
-        std::placeholders::_4,
-        std::placeholders::_5,
-        std::placeholders::_6));
+    _socket.onEvent([this](
+                        AsyncWebSocket *server,
+                        AsyncWebSocketClient *client,
+                        AwsEventType type,
+                        void *arg,
+                        uint8_t *data,
+                        size_t len) { this->onWsEvent(server, client, type, arg, data, len); });
     _server.addHandler(&_socket);
-}
 
-void WebSocketReceiver::begin()
-{
-    _server.begin();
+    connection.on_connection_state_changed([this](Connection::ConnectionState state)
+                                           { this->onConnectionStateChanged(state); });
 }
 
 void WebSocketReceiver::loop()
@@ -61,10 +57,24 @@ void WebSocketReceiver::onWsEvent(
     }
 }
 
+void WebSocketReceiver::onConnectionStateChanged(Connection::ConnectionState state)
+{
+    switch (state)
+    {
+        case Connection::ConnectionState::CONNECTED:
+            _server.begin();
+            break;
+        case Connection::ConnectionState::DISCONNECTED:
+            _server.end();
+            break;
+    }
+}
+
 std::optional<const State> WebSocketReceiver::getNextState()
 {
     if (_hasStateChanged)
     {
+        _hasStateChanged = false;
         return std::optional<const State>(_requestedState);
     }
     return std::nullopt;

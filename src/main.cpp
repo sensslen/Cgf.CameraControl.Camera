@@ -1,9 +1,8 @@
 #include <Arduino.h>
 #include <LibLanc.h>
 
+#include "Connection/EthernetConnection.h"
 #include "LED/LedControl.h"
-#include "Network/EthConfig.h"
-#include "Network/WifiConfig.h"
 #include "PanTilt/PanTilt.h"
 #include "WebsocketReceiver/WebsocketReceiver.h"
 
@@ -47,20 +46,17 @@ LibLanc::LancNonBlocking lanc(LANC_INPUT_PIN, LANC_OUTPUT_PIN);
 // Pin# of the I²C IO signal for the Ethernet PHY
 #define ETH_MDIO_PIN 18
 
-/* Cgf::CameraControl::Camera::EthConfig ethConfig(
-    ETH_TYPE, ETH_ADDR, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_POWER_PIN, ETH_CLK_MODE);*/
+Cgf::CameraControl::Camera::EthernetConnection ethernetConnection(
+    ETH_TYPE, ETH_ADDR, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_POWER_PIN, ETH_CLK_MODE);
 
-Cgf::CameraControl::Camera::WifiConfig wifiConfig("ssid", "password");
-
-Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", 80);
+Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", 80, ethernetConnection);
 
 void setup()
 {
     Serial.begin(115200);
     Serial.setDebugOutput(true);
 
-    // ethConfig.begin();
-    wifiConfig.begin();
+    ethernetConnection.begin();
     if (!panTilt.setup())
     {
         Serial.println("Failed to setup PanTilt");
@@ -71,7 +67,6 @@ void setup()
     }
 
     lanc.begin();
-    websocketReceiver.begin();
 }
 
 void loop()
@@ -79,15 +74,12 @@ void loop()
     auto nextStateOption = websocketReceiver.getNextState();
     if (nextStateOption.has_value())
     {
-        Serial.println("Received new state");
-        Serial.println(nextStateOption.value().toJson());
-
-        /*auto nextState = nextStateOption.value();
+        auto nextState = nextStateOption.value();
         panTilt.setPanSpeed(nextState.getPanSpeed(), nextState.getPanRight());
         panTilt.setTiltSpeed(nextState.getTiltSpeed(), nextState.getTiltUp());
 
         auto zoomSpeed = nextState.getZoomSpeed() * 8 / 255;
-        lanc.setCommand(LibLanc::CommandFactory::zoom(zoomSpeed));*/
+        lanc.setCommand(LibLanc::CommandFactory::zoom(zoomSpeed));
     }
 
     websocketReceiver.loop();

@@ -4,6 +4,7 @@
 
 #include <optional>
 
+#include "../Connection/Connection.h"
 #include "../State/State.h"
 
 namespace Cgf
@@ -16,16 +17,16 @@ namespace Camera
 class WebSocketReceiver
 {
   public:
-    WebSocketReceiver();
-    WebSocketReceiver(const char *websocketPath, uint16_t websocketPort);
-    WebSocketReceiver(String websocketPath, uint16_t websocketPort);
+    WebSocketReceiver(Connection &connection);
+    WebSocketReceiver(const char *websocketPath, uint16_t websocketPort, Connection &connection);
+    WebSocketReceiver(String websocketPath, uint16_t websocketPort, Connection &connection);
 
-    void begin();
     void loop();
 
     std::optional<const State> getNextState();
 
   private:
+    void onConnectionStateChanged(Connection::ConnectionState state);
     void onWsEvent(
         AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 

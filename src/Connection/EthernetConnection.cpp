@@ -1,4 +1,4 @@
-#include "EthConfig.h"
+#include "EthernetConnection.h"
 
 namespace Cgf
 {
@@ -7,18 +7,28 @@ namespace CameraControl
 namespace Camera
 {
 
-EthConfig::EthConfig(eth_phy_type_t type, int32_t phy_addr, int mdc, int mdio, int power, eth_clock_mode_t clock_mode)
+EthernetConnection::EthernetConnection(
+    eth_phy_type_t type, int32_t phy_addr, int mdc, int mdio, int power, eth_clock_mode_t clock_mode)
     : _type(type), _phy_addr(phy_addr), _mdc(mdc), _mdio(mdio), _power(power), _clock_mode(clock_mode)
 {
 }
 
-void EthConfig::begin()
+void EthernetConnection::begin()
 {
-    WiFi.onEvent(std::bind(&EthConfig::onWiFiEvent, this, std::placeholders::_1));
+    WiFi.onEvent(std::bind(&EthernetConnection::onWiFiEvent, this, std::placeholders::_1));
     ETH.begin(_type, _phy_addr, _mdc, _mdio, _power, _clock_mode);
 }
 
-void EthConfig::onWiFiEvent(WiFiEvent_t event)
+void EthernetConnection::on_connection_state_changed(std::function<void(ConnectionState state)> callback)
+{
+    if (_on_connection_state_changed == nullptr)
+    {
+        _on_connection_state_changed = callback;
+        callback(_state);
+    }
+}
+
+void EthernetConnection::onWiFiEvent(WiFiEvent_t event)
 {
     switch (event)
     {
@@ -42,15 +52,26 @@ void EthConfig::onWiFiEvent(WiFiEvent_t event)
             Serial.print(", ");
             Serial.print(ETH.linkSpeed());
             Serial.println("Mbps");
+            onConnectionStateChanged(ConnectionState::CONNECTED);
             break;
         case ARDUINO_EVENT_ETH_DISCONNECTED:
             Serial.println("ETH Disconnected");
+            onConnectionStateChanged(ConnectionState::DISCONNECTED);
             break;
         case ARDUINO_EVENT_ETH_STOP:
             Serial.println("ETH Stopped");
             break;
         default:
             break;
+    }
+}
+
+void EthernetConnection::onConnectionStateChanged(ConnectionState state)
+{
+    _state = state;
+    if (_on_connection_state_changed != nullptr)
+    {
+        _on_connection_state_changed(state);
     }
 }
 
