@@ -1,9 +1,8 @@
+#pragma once
+
 #include <WString.h>
 #include <stddef.h>
 #include <stdint.h>
-
-#ifndef STATE_H
-#define STATE_H
 
 namespace Cgf
 {
@@ -42,5 +41,3 @@ class State
 }  // namespace Camera
 }  // namespace CameraControl
 }  // namespace Cgf
-
-#endif  // STATE_H

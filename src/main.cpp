@@ -4,6 +4,8 @@
 #include "Connection/EthernetConnection.h"
 #include "LED/LedControl.h"
 #include "PanTilt/PanTilt.h"
+#include "WebsocketReceiver/OtaUpdater.h"
+#include "WebsocketReceiver/WebServerConnectionHandler.h"
 #include "WebsocketReceiver/WebsocketReceiver.h"
 
 #define PAN_RIGHT_PIN 14
@@ -49,12 +51,17 @@ std::unique_ptr<LibLanc::App::Lanc> lanc;
 Cgf::CameraControl::Camera::EthernetConnection ethernetConnection(
     ETH_TYPE, ETH_ADDR, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_POWER_PIN, ETH_CLK_MODE);
 
-Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", 80, ethernetConnection);
+Cgf::CameraControl::Camera::WebServerConnectionHandler webServerConnectionHandler(ethernetConnection, 80);
+
+Cgf::CameraControl::Camera::WebSocketReceiver websocketReceiver("/ws", webServerConnectionHandler);
+Cgf::CameraControl::Camera::OtaUpdater otaUpdater(webServerConnectionHandler);
 
 void setup()
 {
-    ethernetConnection.begin();
     Serial.begin(115200);
+    websocketReceiver.begin();
+    otaUpdater.begin();
+    ethernetConnection.begin();
 
     if (!panTilt.setup())
     {
@@ -94,5 +101,6 @@ void loop()
     }
 
     websocketReceiver.loop();
+    otaUpdater.loop();
     lanc->loop();
 }

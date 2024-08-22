@@ -12,13 +12,13 @@ namespace CameraControl
 namespace Camera
 {
 
-WebSocketReceiver::WebSocketReceiver(Connection &connection) : WebSocketReceiver("/ws", 80, connection) {}
-WebSocketReceiver::WebSocketReceiver(const char *websocketPath, uint16_t websocketPort, Connection &connection)
-    : WebSocketReceiver(String(websocketPath), websocketPort, connection)
+WebSocketReceiver::WebSocketReceiver(std::shared_ptr<AsyncWebServer> server) : WebSocketReceiver("/ws", server) {}
+WebSocketReceiver::WebSocketReceiver(const char *websocketPath, std::shared_ptr<AsyncWebServer> server)
+    : WebSocketReceiver(String(websocketPath), server)
 {
 }
-WebSocketReceiver::WebSocketReceiver(String websocketPath, uint16_t websocketPort, Connection &connection)
-    : _hasStateChanged(false), _server(websocketPort), _socket(websocketPath)
+WebSocketReceiver::WebSocketReceiver(String websocketPath, std::shared_ptr<AsyncWebServer> server)
+    : _hasStateChanged(false), _server(server), _socket(websocketPath)
 {
     _socket.onEvent([this](
                         AsyncWebSocket *server,
@@ -27,10 +27,11 @@ WebSocketReceiver::WebSocketReceiver(String websocketPath, uint16_t websocketPor
                         void *arg,
                         uint8_t *data,
                         size_t len) { this->onWsEvent(server, client, type, arg, data, len); });
-    _server.addHandler(&_socket);
+}
 
-    connection.on_connection_state_changed([this](Connection::ConnectionState state)
-                                           { this->onConnectionStateChanged(state); });
+void WebSocketReceiver::begin()
+{
+    _server->addHandler(&_socket);
 }
 
 void WebSocketReceiver::loop()
@@ -54,19 +55,6 @@ void WebSocketReceiver::onWsEvent(
             _hasStateChanged = true;
             break;
         }
-    }
-}
-
-void WebSocketReceiver::onConnectionStateChanged(Connection::ConnectionState state)
-{
-    switch (state)
-    {
-        case Connection::ConnectionState::CONNECTED:
-            _server.begin();
-            break;
-        case Connection::ConnectionState::DISCONNECTED:
-            _server.end();
-            break;
     }
 }
 
