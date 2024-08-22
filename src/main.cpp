@@ -21,7 +21,7 @@ Cgf::CameraControl::Camera::LedControl ledControl(LED_RED_PIN, LED_GREEN_PIN);
 #define LANC_INPUT_PIN 36
 #define LANC_OUTPUT_PIN 15
 
-LibLanc::LancNonBlocking lanc(LANC_INPUT_PIN, LANC_OUTPUT_PIN);
+std::unique_ptr<LibLanc::App::Lanc> lanc;
 
 /*
  * ETH_CLOCK_GPIO0_IN   - default: external clock from crystal oscillator
@@ -65,7 +65,11 @@ void setup()
         Serial.println("Failed to setup LedControl");
     }
 
-    lanc.begin();
+    LibLanc::LancBuilder lancBuilder;
+    lancBuilder.UseTwoPinPhysicalLayer(LANC_INPUT_PIN, LANC_OUTPUT_PIN, LibLanc::Phy::OutputType::OpenCollector);
+    lanc = lancBuilder.CreateNonBlocking();
+
+    lanc->begin();
 }
 
 void loop()
@@ -79,9 +83,16 @@ void loop()
         ledControl.setColor(nextState.getRed(), nextState.getGreen());
 
         auto zoomSpeed = nextState.getZoomSpeed() * 8 / 255;
-        lanc.setCommand(LibLanc::CommandFactory::zoom(zoomSpeed));
+        if (zoomSpeed == 0)
+        {
+            lanc->setCommand(std::move(LibLanc::CommandFactory::clear()));
+        }
+        else
+        {
+            lanc->setCommand(std::move(LibLanc::CommandFactory::zoom(zoomSpeed)));
+        }
     }
 
     websocketReceiver.loop();
-    lanc.loop();
+    lanc->loop();
 }
