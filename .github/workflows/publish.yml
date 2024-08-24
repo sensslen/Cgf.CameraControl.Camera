@@ -31,22 +31,14 @@ jobs:
     - name: Build firmware
       run: platformio run
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release v${{ steps.version.outputs.full_without_prefix }}
-        prerelease: ${{ steps.version.outputs.prerelease != '' }}
+    - name: Rename firmware
+      run: mv .pio/build/wt32-eth01/firmware.bin wt32-eth0.zip
 
-    - name: Upload firmware.bin
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: .pio/build/wt32-eth01/firmware.bin
-        asset_name: wt32-eth0.bin
-        asset_content_type: application/octet-stream
+        prerelease: ${{ steps.version.outputs.prerelease != '' }}
+        generate_release_notes: true
+        fail_on_unmatched_files: true
+        files: |
+          wt32-eth0.bin
