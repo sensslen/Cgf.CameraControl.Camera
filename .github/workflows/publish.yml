@@ -32,7 +32,7 @@ jobs:
       run: platformio run
 
     - name: Rename firmware
-      run: mv .pio/build/wt32-eth01/firmware.bin wt32-eth0.zip
+      run: mv .pio/build/wt32-eth01/firmware.bin wt32-eth0.bin
 
     - name: Release
       uses: softprops/action-gh-release@v2
