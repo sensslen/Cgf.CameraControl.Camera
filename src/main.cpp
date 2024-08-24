@@ -4,9 +4,9 @@
 #include "Connection/EthernetConnection.h"
 #include "LED/LedControl.h"
 #include "PanTilt/PanTilt.h"
-#include "WebsocketReceiver/OtaUpdater.h"
-#include "WebsocketReceiver/WebServerConnectionHandler.h"
-#include "WebsocketReceiver/WebsocketReceiver.h"
+#include "Network/OtaUpdater.h"
+#include "Network/WebServerConnectionHandler.h"
+#include "Network/WebsocketReceiver.h"
 
 #define PAN_LEFT_PIN 14
 #define PAN_RIGHT_PIN 12
