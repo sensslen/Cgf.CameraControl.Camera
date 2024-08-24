@@ -8,8 +8,8 @@
 #include "WebsocketReceiver/WebServerConnectionHandler.h"
 #include "WebsocketReceiver/WebsocketReceiver.h"
 
-#define PAN_RIGHT_PIN 14
-#define PAN_LEFT_PIN 12
+#define PAN_LEFT_PIN 14
+#define PAN_RIGHT_PIN 12
 #define TILT_UP_PIN 4
 #define TILT_DOWN_PIN 2
 

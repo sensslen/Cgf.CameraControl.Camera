@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 #define PWM_FREQUENCY 200
-#define PWM_RESOLUTION 10
+#define PWM_RESOLUTION 8
 
 namespace Cgf
 {
@@ -68,12 +68,12 @@ void PanTilt::setTiltSpeed(uint8_t speed, bool up)
 
 uint32_t PanTilt::calculateSpeed(const uint8_t receivedSpeed)
 {
-    if (receivedSpeed == 0)
+    if (receivedSpeed < 3)
     {
         return 0;
     }
 
-    return map(receivedSpeed, 0, 255, 300, 1023);
+    return map(receivedSpeed, 3, 255, 0, 1023);
 }
 
 }  // namespace Camera
