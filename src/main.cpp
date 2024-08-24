@@ -3,10 +3,10 @@
 
 #include "Connection/EthernetConnection.h"
 #include "LED/LedControl.h"
-#include "PanTilt/PanTilt.h"
 #include "Network/OtaUpdater.h"
 #include "Network/WebServerConnectionHandler.h"
-#include "Network/WebsocketReceiver.h"
+#include "Network/WebSocketReceiver.h"
+#include "PanTilt/PanTilt.h"
 
 #define PAN_LEFT_PIN 14
 #define PAN_RIGHT_PIN 12
