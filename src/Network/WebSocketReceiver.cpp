@@ -44,6 +44,10 @@ void WebSocketReceiver::onWsEvent(
 {
     switch (type)
     {
+        case WS_EVT_DISCONNECT:
+        case WS_EVT_ERROR:
+            _requestedState = State();
+            break;
         case WS_EVT_CONNECT:
             client->text(_requestedState.toJson());
             break;

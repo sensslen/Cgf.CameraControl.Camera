@@ -20,35 +20,35 @@ State::State(String &json) : State()
         return;
     }
 
-    if (document.containsKey("pan"))
+    if (document["pan"].is<int>())
     {
-        int pan = document["pan"];
+        auto pan = document["pan"].as<int>();
         _panSpeed = std::min(std::abs(pan), 255);
         _panRight = pan > 0;
     }
 
-    if (document.containsKey("tilt"))
+    if (document["tilt"].is<int>())
     {
-        int tilt = document["tilt"];
+        auto tilt = document["tilt"].as<int>();
         _tiltSpeed = std::min(std::abs(tilt), 255);
         _tiltUp = tilt > 0;
     }
 
-    if (document.containsKey("zoom"))
+    if (document["zoom"].is<int>())
     {
-        int zoom = document["zoom"];
+        auto zoom = document["zoom"].as<int>();
         _zoomSpeed = std::clamp(zoom, -255, 255);
     }
 
-    if (document.containsKey("red"))
+    if (document["red"].is<int>())
     {
-        int red = document["red"];
+        auto red = document["red"].as<int>();
         _redColor = std::clamp(red, 0, 255);
     }
 
-    if (document.containsKey("green"))
+    if (document["green"].is<int>())
     {
-        int green = document["green"];
+        auto green = document["green"].as<int>();
         _greenColor = std::clamp(green, 0, 255);
     }
 }
